@@ -18,12 +18,10 @@ The Setup
 There are three pieces to this plug-in: (1) the JavaScript file, (2) the PHP script, and (3) the images. Here are the steps you need to take to get things working:
 
 * Upload the PHP script to your site (remember where!)
-* Upload the JavaScript plugin file to your site and include it in your html <head>
+* Upload the JavaScript plugin file to your site and include it in your page
 * Make a folder on your server for the images to use in the captcha system
 * Update the PHP script with your images and the text the user should see for each
-* Call $("#someDivInYourForm").simpleCaptcha() (Add any options you want or need, see below)
 
-__Note that the element you call `simpleCaptcha()` on should be in a <form>!__
 
 Basic Usage
 -----------
@@ -55,6 +53,8 @@ if (isset($_SESSION['simpleCaptchaAnswer']) && $_POST['captchaSelection'] == $_S
 }
 ?>
 ```
+
+__Note that the element you call `simpleCaptcha()` on should be in a `<form>`!__
 
 
 Options
