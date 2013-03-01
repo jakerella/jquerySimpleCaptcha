@@ -27,17 +27,17 @@ Basic Usage
 -----------
 
 ```html
-&lt;form ...&gt;
+<form ...>
   ...
-  &lt;div id="captcha"&gt;&lt;/div&gt;
+  <div id="captcha"></div>
   ...
-&lt;/form&gt;
+</form>
 
-&lt;script&gt;
+<script>
   $('#captcha').simpleCaptcha({
     // any options you want to set
   });
-&lt;/script&gt;
+</script>
 ```
 
 When your form is submitted, you just need to check one variable to see if the form was submitted by a human:
