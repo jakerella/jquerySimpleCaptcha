@@ -1,0 +1,31 @@
+{
+  "name": "simpleCaptcha",
+  "title": "jQuery SimpleCaptcha",
+  "description": "Easy-to-use and understand captcha implementation.",
+  "keywords": [
+    "form",
+    "captcha",
+    "spam",
+    "human"
+  ],
+  "version": "1.0.0",
+  "author": {
+    "name": "Jordan Kasper",
+    "email": "jquery@jordankasper.com",
+    "url": "http://jordankasper.com"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "dependencies": {
+    "jquery": ">=1.7"
+  },
+  "homepage": "https://github.com/jakerella/jquerySimpleCaptcha",
+  "docs": "https://github.com/jakerella/jquerySimpleCaptcha",
+  "download": "https://github.com/jakerella/jquerySimpleCaptcha",
+  "bugs": "https://github.com/jakerella/jquerySimpleCaptcha/issues",
+  "demo": "http://jordankasper.com/jquery/captcha/examples.php"
+}
