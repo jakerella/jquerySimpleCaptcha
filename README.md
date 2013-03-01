@@ -101,3 +101,11 @@ _Advanced Stuff_
 There are other options and possibilities with this plug-in. For example, the PHP script also places a timestamp of when the captcha was generated into the session ("simpleCaptchaTimestamp"). This allows you to check - when the form is submitted - to see how long the "user" took.
 
 There are also classes that you can specify to allow you to hook into the UI easier, events that are triggered when the captcha is loaded and when a selection is made, and of course the ability to tinker with the location of the script, or even rewrite the script in the language of your choice.
+
+Known Issues
+------------
+
+* You can only have one simpleCaptcha instance per page (really its that you can only have one <em>active</em> captcha per session)
+* Inaccessible to the visually impaired
+* No keyboard controls
+* Requires PHP and sessions (although other languages should be easy enough to port to, send them to me if you have one!)
