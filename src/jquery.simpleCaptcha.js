@@ -1,7 +1,8 @@
 /* Copyright (c) 2009 Jordan Kasper
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * Copyright notice and license must remain intact for legal use
- * Requires: jQuery 1.2+
+ * 
+ * Requires: jQuery 1.7+
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
@@ -11,103 +12,119 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
- * Fore usage documentation and examples, visit:
- *         http://jkdesign.org/captcha/
- * 
- * TODO:
- *   Full testing suite
- * 
- * REVISIONS:
- *   0.1 Initial release
- *   0.2 Changed to use title attribute of image for hash (versus alt)
- *       (We don't want the hash showing as images load)
- *       Fixed simpleCaptcha.php to return properly formatted JSON (fixes bug in jQuery 1.4)
+ * For more usage documentation and examples, visit:
+ *  https://github.com/jakerella/jquerySimpleCaptcha
  * 
  */
 ;(function($) {
-  
+
+  // PRIVATE VARS & METHODS
+  var ns = 'simpleCaptcha';
+
+
+  /**
+   * This method will add a captcha to the selected element which includes making an 
+   * ajax request for the images & hashes and displaying the information
+   * 
+   *  Typical usage:
+   *   $('#divInForm').simpleCaptcha({
+   *     // options
+   *   });
+   * 
+   * Optionally, if a captcha is already on this node you can call the method again with:
+   *  - the name of an option to retrieve that option's value (i.e. var num = $('#divInForm').simpleCaptcha('numImages'); )
+   *  - "refresh" to reset the images and hashes from a new AJAX call to the PHP script (i.e. $('#divInForm').prefillForm('refresh'); )
+   * 
+   * @param  {object|string} o If an OBJECT, creates a new simpleCaptcha in the selected element and uses the object as options
+   * @return {jQuery} The jQuery object for chain calling (NOTE: If an option was requested then this method returns that option value, not the jQuery chain)
+   */
   $.fn.simpleCaptcha = function(o) {
-    var n = this;
-    if (n.length < 1) { return n; }
-    
-    o = (o)?o:{};
-    o = auditOptions($.extend({}, $.fn.simpleCaptcha.defaults, o));
-    
-    var inputId = "simpleCaptcha_"+($.fn.simpleCaptcha.uid++);
-    n
-      .addClass('simpleCaptcha')
+    var n = $(this);
+    (o)?o:{};
+    var c;
+
+    if (n.length === 1 && n.hasClass(ns) && n.data(ns) && o && o.length) {
+      // Get simpleCaptcha option value
+      c = n.data(ns);
+      if (o === 'refresh') {
+        // TODO: handle a refresh
+        // return ...
+      } else {
+        return c[o];
+      }
+
+    } else if (n.length === 1 && !o.node) {
+      o.node = n;
+      c = new $.jk.SimpleCaptcha(o);
+    } else if (o.node) {
+      c = new $.jk.SimpleCaptcha(o);
+    }
+
+    if (!c) { n.trigger('error.'+ns, ['No node provided for the simpleCaptcha UI']); }
+
+    return n;
+  };
+
+
+  // CONSTRUCTOR
+  if (!$.jk) { $.jk = {}; }
+  $.jk.SimpleCaptcha = function(o) {
+    var t = this;
+
+    // Audit options and merge with object
+    if (o.numImages && (!Number(o.numImages) || o.numImages < 1)) { o.numImages = t.numImages; }
+    $.extend(t, ((o)?o:{}));
+
+    var n;
+    t.node = $( ((o.node)?o.node:null) );
+    if (t.node.length){
+      n = t.node;
+    } else {
+      return null;
+    }
+
+    n.addClass(ns)
       .html('')  // clear out the container
       .append(
-        "<div class='"+o.introClass+"'>"+o.introText+"</div>"+
-        "<div class='"+o.imageBoxClass+"'></div>"+
-        "<input class='simpleCaptchaInput' id='"+inputId+"' name='"+o.inputName+"' type='hidden' value='' />"
-      );
+        "<div class='"+t.introClass+"'>"+t.introText+"</div>"+
+        "<div class='"+t.imageBoxClass+"'></div>"+
+        "<input class='"+ns+"Input' id='"+ns+"Input' name='"+t.inputName+"' type='hidden' value='' />"
+      )
+      // set the class as node data
+      .data(ns, t)
     
-    // Call simpleCaptcha.php to get images and current selection
-    $.ajax({
-      url: o.scriptPath,
-      data: { numImages: o.numImages },
-      method: 'post',
-      dataType: 'json',
-      success: function(data, status) {
-        if (typeof data.error == 'string') {
-          handleError(n, data.error);
-          return;
-        } else {
-          // Add image text to correct place
-          n.find('.'+o.textClass).html(data.text);
-          
-          // Add images to container with click handlers
-          var imgBox = n.find('.'+o.imageBoxClass);
-          $.each(data.images, function() {
-            imgBox.append("<img class='"+o.imageClass+"' src='"+this.file+"' alt='' title='"+this.hash+"' />");
-          });
-          imgBox.find('img.'+o.imageClass)
-            .click(function(e) {
-              n.find('img.'+o.imageClass).removeClass('simpleCaptchaSelected');
-              var hash = $(this).addClass('simpleCaptchaSelected').attr('title');
-              $('#'+inputId).val(hash);
-              n.trigger('select.simpleCaptcha', [hash]);
-              return false;
-            })
-            .keyup(function(e) {
-              if (e.keyCode == 13 || e.which == 13) {
-                $(this).click();
-              }
-            });
-          n.trigger('loaded.simpleCaptcha', [data]);
-        }
-      },
-      error: function(xhr, status) {
-        handleError(n, 'There was a serious problem: '+xhr.status);
-      }
+      // handler for selecting images
+      .find('.'+t.imageBoxClass)
+        .on('click', 'img.'+t.imageClass, function(e) {
+          e.preventDefault();
+          n.find('img.'+t.imageClass).removeClass(ns+'Selected');
+          var hash = $(this).addClass(ns+'Selected').attr('data-hash');
+          $('#'+ns+"Input").val(hash);
+
+          n.trigger('select.'+ns, [hash]);
+          return false;
+        })
+        // handle an "enter" & "space" while an image has focus, emulating a click
+        .on('keyup', 'img.'+t.imageClass, function(e) {
+          if (e.which == 13 || e.which == 32) {
+            $(this).click();
+          }
+        });
+
+    // start it up
+    t.loadImageData(function(d) {
+      t.addImagesToUI(d);
     });
     
-    return n;  // Continue jQuery chain
+    n.trigger('init.'+ns, [t]);
   };
-  
-  var handleError = function(n, msg) {
-    n.trigger('error.simpleCaptcha', [msg]);
-  }
-  
-  // Defined outside simpleCaptcha to allow for usage during construction
-  var auditOptions = function(o) {
-    if (typeof o.numImages != 'number' || o.numImages < 1) { o.numImages = $.fn.simpleCaptcha.defaults.numImages; }
-    if (typeof o.introText != 'string' || o.introText.length < 1) { o.introText = $.fn.simpleCaptcha.defaults.introText; }
-    if (typeof o.inputName != 'string') { o.inputName = $.fn.simpleCaptcha.defaults.inputName; }
-    if (typeof o.scriptPath != 'string') { o.scriptPath = $.fn.simpleCaptcha.defaults.scriptPath; }
-    if (typeof o.introClass != 'string') { o.introClass = $.fn.simpleCaptcha.defaults.introClass; }
-    if (typeof o.textClass != 'string') { o.textClass = $.fn.simpleCaptcha.defaults.textClass; }
-    if (typeof o.imageBoxClass != 'string') { o.imageBoxClass = $.fn.simpleCaptcha.defaults.imageBoxClass; }
-    if (typeof o.imageClass != 'string') { o.imageClass = $.fn.simpleCaptcha.defaults.imageClass; }
-    
-    return o;
-  }
-  
-  $.fn.simpleCaptcha.uid = 0;
-  
-  // options for simpleCaptcha instances...
-  $.fn.simpleCaptcha.defaults = {
+
+
+  // PUBLIC PROPERTIES (Default options)
+  // Assign default options to the class prototype
+  $.extend($.jk.SimpleCaptcha.prototype, {
+    node: null,                       // The node to use for the captcha UI
+    data: {},                         // Data to be loaded by ajax call
     numImages: 5,                     // Number How many images to show the user (providing there are at least that many defined in the script file).
     introText: "<p>To make sure you are a human, we need you to click on the <span class='captchaText'></span>.</p>",
                                       // String Text to place above captcha images (can contain html). IMPORTANT: You should probably include a tag with the textClass name on it, for example: <span id='captchaText'></span>
@@ -117,6 +134,56 @@
     textClass: 'captchaText',         // String Class to look for to place the text for the correct captcha image.
     imageBoxClass: 'captchaImages',   // String Class to use for the captchas images container.
     imageClass: 'captchaImage'        // String Class to use for each captcha image.
-  };
+  });
 
+  
+  // PUBLIC METHODS
+  $.extend($.jk.SimpleCaptcha.prototype, {
+    
+    loadImageData: function(cb) {
+      var t = this;
+      cb = ($.isFunction(cb))?cb:(function(){});
+
+      $.ajax({
+        url: t.scriptPath,
+        data: { numImages: t.numImages },
+        method: 'post',
+        dataType: 'json',
+        success: function(d, s) {
+          if (d && d.images && d.text) {
+            t.data = d;
+            t.node.trigger('dataload.'+ns, [d]);
+            cb(d);
+          } else {
+            t.node.trigger('error.'+ns, ['Invalid data was returned from the server.']);
+          }
+        },
+        error: function(xhr, s) {
+          t.node.trigger('error.'+ns, ['There was a serious problem: '+xhr.status]);
+        }
+      });
+    },
+
+    addImagesToUI: function() {
+      var t = this;
+      // Add image text to correct place
+      t.node.find('.'+t.textClass).text(t.data.text);
+      
+      var b = t.node.find('.'+t.imageBoxClass).html('');
+      // Add images to container
+      for (var i=0; i<t.data.images.length; ++i) {
+        b.append("<img class='"+t.imageClass+"' src='"+t.scriptPath+'?hash='+t.data.images[i]+"' alt='' data-hash='"+t.data.images[i]+"' />");
+      }
+    },
+
+    refresh: function() {
+      var t = this;
+      t.loadImageData(function(d) {
+        t.addImagesToUI(d);
+      });
+    }
+
+  });
+
+  
 })(jQuery);

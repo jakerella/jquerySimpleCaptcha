@@ -1,0 +1,13 @@
+
+Version 1.0
+ - Upgraded to use jQuery 1.7 (breaks for older versions of jQ)
+ - Changed structure of plugin code to use objects
+ - Changed structure of PHP code to use Singleton
+ - Added testing suite
+
+Version 0.2
+ - Changed to use title attribute of image for hash (versus alt) (We don't want the hash showing as images load)
+ - Fixed simpleCaptcha.php to return properly formatted JSON (fixes bug in jQuery 1.4)
+
+Version 0.1
+ - Initial Release
