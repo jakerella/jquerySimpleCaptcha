@@ -60,28 +60,36 @@ __Note that the element you call `simpleCaptcha()` on should be in a `<form>`!__
 Options
 -------
 
+* _allowRefresh_: Whether the user should see a UI element allowing them to refresh the captcha choices _(default: `true`)_
 * _numImages_: How many images to show the user (providing there are at least that many defined in the script file) _(default: `5`)_
 * _textClass_: Class to look for to place the text for the correct captcha image. _(default: `"captchaText"`)_
 * _introText_: Text to place above captcha images (can contain html). __IMPORTANT__ You should probably include a tag with the textClass name on it, for example: `<span id='captchaText'></span>` _(default: `"<p>To make sure you are a human, we need you to click on the <span class='captchaText'></span>.</p>"`)_
+* _refreshButton_: Html to use for the "refresh" button/content. Note that you can make this whatever you like, but it will be placed AFTER the "introText", and a click handler will be attached to initiate the refresh, so best to make it something "clickable". _(default: `"<input type='button' value='Refresh Options' />"`)_
+* _refreshClass_: Class to use for the captcha refresh block (if there is one) _(default: `"refreshCaptcha"`)_
 * _inputName_: Name to use for the captcha hidden input, this is what you will need to check on the receiving end of the form submission. _(default: `"captchaSelection"`)_
 * _scriptPath_: Path to the script file to use for the initial AJAX call (can be a relative path to the current page). _(default: `"simpleCaptcha.php"`)_
 * _introClass_: Class to use for the captcha introduction text container. _(default: `"captchaIntro"`)_
 * _imageBoxClass_: Class to use for the captchas images container. _(default: `"captchaImages"`)_
 * _imageClass_: Class to use for each captcha image. _(default: `"captchaImage"`)_
 
+
 Events
 ------
 
-* _loaded.simpleCaptcha_: Called when the captcha has been loaded in the page
-* _error.simpleCaptcha_: Called when there is an error loading the captcha
-* _select.simpleCaptcha_: Called when the user selects a captcha image (this is NOT when the form is submitted)
+* _init.simpleCaptcha_: The basic UI container, form element and event handlers have been added to the page. Note that at this point the captcha images, hashes, and answer text will NOT have been laoded, see the "dataload" and ready" events below. You should only ever receive ONE of these events per page load. _(Arguments: `captcha` (`SimpleCaptcha` object))_
+* _dataload.simpleCaptcha_: The captcha images, hashes, and text have been loaded via the server script (although the UI may not yet be updated). _(Arguments: `returnData` (object))_
+* _ready.simpleCaptcha_: The captcha images, hashes, and answer text have been loaded in the UI and everything is ready to go. Note that you may receive multiple of these if the user requests a "refresh", see below. _(Arguments: `captcha` (`SimpleCaptcha` object))_
+* _select.simpleCaptcha_: The user has selected a captcha image (this is NOT when the form is submitted). Note that this is called EACH time, not just on the initial selection (in other words, they may change their selection). _(Arguments: `captcha` (`SimpleCaptcha` object), `hash` (string))_
+* _refresh.simpleCaptcha_: The user has requested that the captcha images be reloaded. Note that you shoul also receive "dataload" and "ready" events after this. _(Arguments: `captcha` (`SimpleCaptcha` object))_
+* _error.simpleCaptcha_: There is an error during any part of the process. _(Arguments: `errorMessage` (string))_
+
 
 Event Example
 -------------
 
 ```javascript
 $('#captcha')
-  .bind('select.simpleCaptcha', function() {
+  .bind('select.simpleCaptcha', function(hashSelected) {
     // do something when the user selects a captcha image
   })
   .simpleCaptcha({});

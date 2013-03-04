@@ -102,7 +102,7 @@
           var hash = $(this).addClass(ns+'Selected').attr('data-hash');
           n.find('.'+ns+"Input").val(hash);
 
-          n.trigger('select.'+ns, [hash]);
+          n.trigger('select.'+ns, [t, hash]);
           return false;
         })
         // handle an "enter" & "space" while an image has focus, emulating a click
@@ -137,7 +137,7 @@
   // PUBLIC PROPERTIES (Default options)
   // Assign default options to the class prototype
   $.extend($.jk.SimpleCaptcha.prototype, {
-    allowRefresh: true,               // Data to be loaded by ajax call
+    allowRefresh: true,               // Boolean Whether the user should see a UI element allowing them to refresh the captcha choices
     scriptPath: 'simpleCaptcha.php',  // String Relative path to the script file to use (usually simpleCaptcha.php).
     numImages: 5,                     // Number How many images to show the user (providing there are at least that many defined in the script file).
     introText: "<p>To make sure you are a human, we need you to click on the <span class='captchaText'></span>.</p>",
@@ -191,13 +191,14 @@
       for (var i=0; i<t.data.images.length; ++i) {
         b.append("<img class='"+t.imageClass+"' src='"+t.scriptPath+'?hash='+t.data.images[i]+"' alt='' data-hash='"+t.data.images[i]+"' />");
       }
+      t.node.trigger('ready.'+ns, [t]);
     },
 
     refresh: function() {
       var t = this;
+      t.node.trigger('refresh.'+ns, [t]);
       t.loadImageData(function(d) {
         t.addImagesToUI(d);
-        t.node.trigger('refresh.'+ns, [t]);
       });
     }
 
