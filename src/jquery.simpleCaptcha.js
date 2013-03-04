@@ -46,10 +46,9 @@
     if (n.length === 1 && n.hasClass(ns) && n.data(ns) && o && o.length) {
       // Get simpleCaptcha option value
       c = n.data(ns);
-      if (o === 'refresh') {
-        // TODO: handle a refresh
-        // return ...
-      } else {
+      if (c && o === 'refresh') {
+        c.refresh();
+      } else if (c) {
         return c[o];
       }
 
@@ -70,10 +69,12 @@
   if (!$.jk) { $.jk = {}; }
   $.jk.SimpleCaptcha = function(o) {
     var t = this;
+    t.data = {};
 
     // Audit options and merge with object
     if (o.numImages && (!Number(o.numImages) || o.numImages < 1)) { o.numImages = t.numImages; }
     $.extend(t, ((o)?o:{}));
+    t.allowRefresh = !!t.allowRefresh; // force boolean value
 
     var n;
     t.node = $( ((o.node)?o.node:null) );
@@ -86,9 +87,9 @@
     n.addClass(ns)
       .html('')  // clear out the container
       .append(
-        "<div class='"+t.introClass+"'>"+t.introText+"</div>"+
+        "<p class='"+t.introClass+"'>"+t.introText+"</p>"+
         "<div class='"+t.imageBoxClass+"'></div>"+
-        "<input class='"+ns+"Input' id='"+ns+"Input' name='"+t.inputName+"' type='hidden' value='' />"
+        "<input class='"+ns+"Input' name='"+t.inputName+"' type='hidden' value='' />"
       )
       // set the class as node data
       .data(ns, t)
@@ -99,7 +100,7 @@
           e.preventDefault();
           n.find('img.'+t.imageClass).removeClass(ns+'Selected');
           var hash = $(this).addClass(ns+'Selected').attr('data-hash');
-          $('#'+ns+"Input").val(hash);
+          n.find('.'+ns+"Input").val(hash);
 
           n.trigger('select.'+ns, [hash]);
           return false;
@@ -111,11 +112,24 @@
           }
         });
 
+    if (t.allowRefresh) {
+      var b = $(t.refreshButton);
+      n.find('.'+t.introClass)
+        .after("<div class='"+t.refreshClass+"' />")
+        .siblings('.'+t.refreshClass)
+          .append(b);
+      b.on('click', function(e) {
+        e.preventDefault();
+        t.refresh();
+        return false;
+      });
+    }
+
     // start it up
     t.loadImageData(function(d) {
       t.addImagesToUI(d);
     });
-    
+
     n.trigger('init.'+ns, [t]);
   };
 
@@ -123,17 +137,20 @@
   // PUBLIC PROPERTIES (Default options)
   // Assign default options to the class prototype
   $.extend($.jk.SimpleCaptcha.prototype, {
-    node: null,                       // The node to use for the captcha UI
-    data: {},                         // Data to be loaded by ajax call
+    allowRefresh: true,               // Data to be loaded by ajax call
+    scriptPath: 'simpleCaptcha.php',  // String Relative path to the script file to use (usually simpleCaptcha.php).
     numImages: 5,                     // Number How many images to show the user (providing there are at least that many defined in the script file).
     introText: "<p>To make sure you are a human, we need you to click on the <span class='captchaText'></span>.</p>",
-                                      // String Text to place above captcha images (can contain html). IMPORTANT: You should probably include a tag with the textClass name on it, for example: <span id='captchaText'></span>
+                                      // String Text to place above captcha images (can contain html). IMPORTANT: You should probably include a tag with the textClass name on it, for example: <span class='captchaText'></span>
+    refreshButton: "<input type='button' value='Refresh Options' />",
+                                      // String Html to use for the "refresh" button/content. Note that you can make this whatever you like, but it will be placed AFTER the "introText", and a click handler will be attached to initiate the refresh, so best to make it something "clickable".
+    refreshClass: 'refreshCaptcha',   // String Class to use for the captcha refresh block (if there is one)
     inputName: 'captchaSelection',    // String Name to use for the captcha hidden input, this is what you will need to check on the receiving end of the form submission.
-    scriptPath: 'simpleCaptcha.php',  // String Relative path to the script file to use (usually simpleCaptcha.php).
     introClass: 'captchaIntro',       // String Class to use for the captcha introduction text container.
     textClass: 'captchaText',         // String Class to look for to place the text for the correct captcha image.
     imageBoxClass: 'captchaImages',   // String Class to use for the captchas images container.
-    imageClass: 'captchaImage'        // String Class to use for each captcha image.
+    imageClass: 'captchaImage',       // String Class to use for each captcha image.
+    node: null                        // Node | String The node (or selector) to use for the captcha UI. If not set, the current node selected bu $(...).simpleCaptcha(); will be used
   });
 
   
@@ -180,6 +197,7 @@
       var t = this;
       t.loadImageData(function(d) {
         t.addImagesToUI(d);
+        t.node.trigger('refresh.'+ns, [t]);
       });
     }
 
