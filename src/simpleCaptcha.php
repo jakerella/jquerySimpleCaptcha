@@ -89,7 +89,7 @@ class SimpleCaptcha {
         throw new InvalidArgumentException("That captcha image file does not exist", 404);
       }
     } else {
-      throw new InvalidArgumentException("No captcha image exists with that hash: ".json_encode($this->sessionData), 404);
+      throw new InvalidArgumentException("No captcha image exists with that hash: ".json_encode($this->sessionData->images), 404);
     }
   }
 
@@ -194,13 +194,13 @@ try {
   $code = $iae->getCode();
   if (!$code) { $code = 400; }
   header(SimpleCaptcha::getProtocol()." {$code} ".$iae->getMessage());
-  echo "{$code} ".$iae->getMessage();
+  echo $iae->getMessage();
 
 } catch (Exception $e) {
   $code = $e->getCode();
   if (!$code) { $code = 500; }
   header(SimpleCaptcha::getProtocol()." {$code} ".$e->getMessage());
-  echo "{$code} ".$e->getMessage();
+  echo $e->getMessage();
 }
 
 exit; // make sure we stop the script
