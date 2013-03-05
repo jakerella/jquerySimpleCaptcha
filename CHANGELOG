@@ -1,8 +1,10 @@
 
 Version 1.0
- - Upgraded to use jQuery 1.7 (breaks for older versions of jQ)
- - Changed structure of plugin code to use objects
- - Changed structure of PHP code to use Singleton
+ - Upgraded to use jQuery 1.7 (breaks plugin for older versions of jQ)
+ - Changed structure of plugin code to use objects (complete code restructuring)
+ - Changed structure of PHP code to use class/methods (complete code restructuring)
+ - Added better events
+ - Added ability to "refresh" the captcha options (manually and by user button click)
  - Added testing suite
 
 Version 0.2

@@ -40,23 +40,30 @@
    */
   $.fn.simpleCaptcha = function(o) {
     var n = $(this);
-    (o)?o:{};
     var c;
+    o = (o)?o:{};
 
     if (n.length === 1 && n.hasClass(ns) && n.data(ns) && o && o.length) {
       // Get simpleCaptcha option value
       c = n.data(ns);
       if (c && o === 'refresh') {
+        // refresh the data
         c.refresh();
+
       } else if (c) {
+        // send back the option value
         return c[o];
       }
 
-    } else if (n.length === 1 && !o.node) {
-      o.node = n;
+    } else if (!o.node && n.length) {
+      // Use the first selected element
+      o.node = n.filter(':first');
+    }
+
+    if (!c && o.node) {
+      // if we don't have a captcha object yet, create one and start it up
       c = new $.jk.SimpleCaptcha(o);
-    } else if (o.node) {
-      c = new $.jk.SimpleCaptcha(o);
+      c.loadImageData(function(d) { c.addImagesToUI(); });
     }
 
     if (!c) { n.trigger('error.'+ns, ['No node provided for the simpleCaptcha UI']); }
@@ -87,7 +94,7 @@
     n.addClass(ns)
       .html('')  // clear out the container
       .append(
-        "<p class='"+t.introClass+"'>"+t.introText+"</p>"+
+        "<div class='"+t.introClass+"'>"+t.introText+"</div>"+
         "<div class='"+t.imageBoxClass+"'></div>"+
         "<input class='"+ns+"Input' name='"+t.inputName+"' type='hidden' value='' />"
       )
@@ -125,11 +132,6 @@
       });
     }
 
-    // start it up
-    t.loadImageData(function(d) {
-      t.addImagesToUI(d);
-    });
-
     n.trigger('init.'+ns, [t]);
   };
 
@@ -142,7 +144,7 @@
     numImages: 5,                     // Number How many images to show the user (providing there are at least that many defined in the script file).
     introText: "<p>To make sure you are a human, we need you to click on the <span class='captchaText'></span>.</p>",
                                       // String Text to place above captcha images (can contain html). IMPORTANT: You should probably include a tag with the textClass name on it, for example: <span class='captchaText'></span>
-    refreshButton: "<input type='button' value='Refresh Options' />",
+    refreshButton: "<img src='refresh.png' class='refreshButton' alt='Refresh' title='Refresh captcha options' />",
                                       // String Html to use for the "refresh" button/content. Note that you can make this whatever you like, but it will be placed AFTER the "introText", and a click handler will be attached to initiate the refresh, so best to make it something "clickable".
     refreshClass: 'refreshCaptcha',   // String Class to use for the captcha refresh block (if there is one)
     inputName: 'captchaSelection',    // String Name to use for the captcha hidden input, this is what you will need to check on the receiving end of the form submission.
@@ -186,11 +188,14 @@
       // Add image text to correct place
       t.node.find('.'+t.textClass).text(t.data.text);
       
-      var b = t.node.find('.'+t.imageBoxClass).html('');
-      // Add images to container
+      // Build images html
+      var h = "";
       for (var i=0; i<t.data.images.length; ++i) {
-        b.append("<img class='"+t.imageClass+"' src='"+t.scriptPath+'?hash='+t.data.images[i]+"' alt='' data-hash='"+t.data.images[i]+"' />");
+        h += "<img class='"+t.imageClass+"' src='"+t.scriptPath+'?hash='+t.data.images[i]+"' alt='' data-hash='"+t.data.images[i]+"' />";
       }
+      // Add images to container (replacing existing ones, if any)
+      t.node.find('.'+t.imageBoxClass).html(h);
+      
       t.node.trigger('ready.'+ns, [t]);
     },
 
@@ -198,7 +203,7 @@
       var t = this;
       t.node.trigger('refresh.'+ns, [t]);
       t.loadImageData(function(d) {
-        t.addImagesToUI(d);
+        t.addImagesToUI();
       });
     }
 

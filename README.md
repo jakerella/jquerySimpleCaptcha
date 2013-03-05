@@ -17,10 +17,11 @@ The Setup
 
 There are three pieces to this plug-in: (1) the JavaScript file, (2) the PHP script, and (3) the images. Here are the steps you need to take to get things working:
 
-* Upload the PHP script to your site (remember where!)
-* Upload the JavaScript plugin file to your site and include it in your page
-* Make a folder on your server for the images to use in the captcha system
-* Update the PHP script with your images and the text the user should see for each
+* Upload the PHP script (src/simpleCaptcha.php) to your site (remember where, and what you named it!)
+* Upload the JavaScript plugin file (src/jquery.simpleCaptcha.js) to your site and include it in your page (after you include the jQuery core)
+* Make a folder on your server for the images to use in the captcha system (and optionally upload the sample images to that folder)
+* Update the PHP script (src/simpleCaptcha.php) with your image filenames and the text the user should see for each
+* (Optional) Upload (or copy) the CSS and "refresh" image to your server
 
 
 Basic Usage

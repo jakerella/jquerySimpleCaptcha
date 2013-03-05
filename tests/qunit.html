@@ -13,6 +13,7 @@
       <script src='lib/jquery-1.7.2.min.js'></script>
       <script src='../src/jquery.simpleCaptcha.js'></script>
       <script src='lib/qunit-1.10.0.js'></script>
+      <script src='lib/jquery.mockjax.js'></script>
       <script src='qunit-tests.js'></script>
 
       <style>
@@ -38,7 +39,7 @@
 
       <div id='qunit-fixture'>
 
-        <form action='' method='POST'>
+        <form id='simplePost' action='' method='POST'>
           <h3>Simple POST form</h3>
           
           <div class='group'>

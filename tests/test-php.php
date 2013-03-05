@@ -40,14 +40,14 @@ session_start();
       <form action='' method='POST'>
         <h3>POST form</h3>
         
-        <div class='group'>
-          <label for='f1_text'>Text</label>
+        <div>
+          <label for='f1_text'>Text Input</label>
           <input type='text' id='f1_text' name='text' />
         </div>
 
         <div id='captcha'></div>
 
-        <div class='group'>
+        <div>
           <input type='submit' id='f1_submit' name='submit' value='Submit' />
         </div>
       </form>
