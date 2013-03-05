@@ -63,7 +63,7 @@
     if (!c && o.node) {
       // if we don't have a captcha object yet, create one and start it up
       c = new $.jk.SimpleCaptcha(o);
-      c.loadImageData(function(d) { c.addImagesToUI(); });
+      c.loadImageData(function(d) { if (d) { c.addImagesToUI(); } });
     }
 
     if (!c) { n.trigger('error.'+ns, ['No node provided for the simpleCaptcha UI']); }
@@ -76,6 +76,7 @@
   if (!$.jk) { $.jk = {}; }
   $.jk.SimpleCaptcha = function(o) {
     var t = this;
+    o = (o)?o:{};
     t.data = {};
 
     // Audit options and merge with object
@@ -85,10 +86,11 @@
 
     var n;
     t.node = $( ((o.node)?o.node:null) );
-    if (t.node.length){
+    if (t.node && t.node.length === 1){
       n = t.node;
     } else {
-      return null;
+      // if we don't have a single node, nothing more we can do...
+      return t;
     }
 
     n.addClass(ns)
@@ -166,7 +168,7 @@
       $.ajax({
         url: t.scriptPath,
         data: { numImages: t.numImages },
-        method: 'post',
+        type: 'post',
         dataType: 'json',
         success: function(d, s) {
           if (d && d.images && d.text) {
@@ -175,9 +177,12 @@
             cb(d);
           } else {
             t.node.trigger('error.'+ns, ['Invalid data was returned from the server.']);
+            cb(null);
           }
         },
         error: function(xhr, s) {
+          console.debug('in error handler:', xhr);
+          cb(null);
           t.node.trigger('error.'+ns, ['There was a serious problem: '+xhr.status]);
         }
       });
@@ -203,7 +208,7 @@
       var t = this;
       t.node.trigger('refresh.'+ns, [t]);
       t.loadImageData(function(d) {
-        t.addImagesToUI();
+        if (d) { t.addImagesToUI(); }
       });
     }
 
