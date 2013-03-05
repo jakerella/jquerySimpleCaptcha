@@ -68,9 +68,18 @@ class SimpleCaptcha {
       $fn = $this->sessionData['images'][$hash];
 
       if (file_exists($fn)) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $fn);
-        if ($mime === false) { $mime = "image/png"; }
+        $mime = null;
+        if (function_exists("finfo_open")) {
+          // PHP 5.3
+          $finfo = finfo_open(FILEINFO_MIME_TYPE);
+          $mime = finfo_file($finfo, $fn);
+
+        } else if (function_exists("mime_content_type")) {
+          // PHP 5.2
+          $mime = mime_content_type($fn);
+        }
+
+        if (!$mime) { $mime = "image/png"; }
 
         header("Content-Type: {$mime}");
         readfile($fn);
