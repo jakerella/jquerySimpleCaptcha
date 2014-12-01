@@ -104,7 +104,7 @@ _What Happens_
 When you call $("#someDivInYourForm").simpleCaptcha({...}) the plug-in will make an XMLHttpRequest (AJAX call) to the PHP script which will then randomly select the number of images you specify (or a default) and from those, one to be the "correct" option. The script places a hash of the image text of the correct option (and some random characters) into the session and sends back the hashes - as well as the file locations - for all options. The hash is placed in the "alt" text of the image tag, and when a user clicks on an image, its hash is placed in the value of the hidden input.
 
 _Telling humans from machines_
-When a user submits the form that the simpleCaptcha UI is in, they will also submit the simpleCaptcha hidden form input, __you must check this input to see if they got the answer right__. All you do is compare their answer (a hash) against what is in the session variable. [Check the examples](http://jordankasper.com/jquery/captcha/examples.php) to see how to do this.
+When a user submits the form that the simpleCaptcha UI is in, they will also submit the simpleCaptcha hidden form input, __you must check this input to see if they got the answer right__. All you do is compare their answer (a hash) against what is in the session variable. [Check the examples](http://jordankasper.com/jquery/captcha/examples) to see how to do this.
 
 _Advanced Stuff_
 There are other options and possibilities with this plug-in. For example, the PHP script also places a timestamp of when the captcha was generated into the session ("simpleCaptchaTimestamp"). This allows you to check - when the form is submitted - to see how long the "user" took.

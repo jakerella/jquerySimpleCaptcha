@@ -1,0 +1,28 @@
+{
+  "name": "jquerySimpleCaptcha",
+  "version": "1.0.0",
+  "description": "Easy to use and understand captcha implementation for jQuery",
+  "main": "src/jquery.simpleCaptcha.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Please run tests using QUnit web UI\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jakerella/jquerySimpleCaptcha.git"
+  },
+  "keywords": [
+    "jquery-plugin",
+    "captcha",
+    "form",
+    "spam"
+  ],
+  "author": "Jordan Kasper()",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jakerella/jquerySimpleCaptcha/issues"
+  },
+  "homepage": "https://github.com/jakerella/jquerySimpleCaptcha"
+}
