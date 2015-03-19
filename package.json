@@ -1,5 +1,5 @@
 {
-  "name": "jquerySimpleCaptcha",
+  "name": "jquery-simple-captcha",
   "version": "1.0.0",
   "description": "Easy to use and understand captcha implementation for jQuery",
   "main": "src/jquery.simpleCaptcha.js",
